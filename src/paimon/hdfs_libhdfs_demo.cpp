@@ -271,7 +271,7 @@ int main(int argc, char** argv) {
 
     // 列出目录
     std::cout << "\n正在列出 /tmp 目录内容..." << std::endl;
-    ListHDFSDirectory(fs, "/tmp");
+    ListHDFSDirectory(fs, "/warehouse");
 
     // 读取文件
     std::cout << "\n正在从 HDFS 读取文件..." << std::endl;

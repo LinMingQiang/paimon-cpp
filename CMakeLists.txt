@@ -21,11 +21,11 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(Arrow CONFIG REQUIRED)
 find_package(Paimon CONFIG REQUIRED)
 
-add_executable(read_write_demo read_write_demo.cpp)
-add_executable(clean_demo clean_demo.cpp)
-add_executable(hdfs_test hdfs_test.cpp)
-add_executable(hdfs_read_write_demo hdfs_read_write_demo.cpp)
-add_executable(hdfs_libhdfs_demo hdfs_libhdfs_demo.cpp)
+add_executable(read_write_demo src/paimon/read_write_demo.cpp)
+add_executable(clean_demo src/paimon/clean_demo.cpp)
+add_executable(hdfs_test src/paimon/hdfs_test.cpp)
+add_executable(hdfs_read_write_demo src/paimon/hdfs_read_write_demo.cpp)
+add_executable(hdfs_libhdfs_demo src/paimon/hdfs_libhdfs_demo.cpp)
 
 include_directories(${PAIMON_INCLUDE_DIRS})
 
