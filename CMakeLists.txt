@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(example)
+project(paimon-cpp-examples)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -24,6 +24,8 @@ find_package(Paimon CONFIG REQUIRED)
 add_executable(read_write_demo read_write_demo.cpp)
 add_executable(clean_demo clean_demo.cpp)
 add_executable(hdfs_test hdfs_test.cpp)
+add_executable(hdfs_read_write_demo hdfs_read_write_demo.cpp)
+add_executable(hdfs_libhdfs_demo hdfs_libhdfs_demo.cpp)
 
 include_directories(${PAIMON_INCLUDE_DIRS})
 
@@ -50,5 +52,16 @@ target_link_libraries(hdfs_test
         paimon_orc_file_format_shared
         paimon_local_file_system_shared
         parquet)
+
+target_link_libraries(hdfs_read_write_demo
+        PRIVATE arrow_shared
+        paimon_shared
+        paimon_parquet_file_format_shared
+        paimon_orc_file_format_shared
+        paimon_local_file_system_shared
+        parquet)
+
+target_link_libraries(hdfs_libhdfs_demo
+        PRIVATE hdfs)
 
 

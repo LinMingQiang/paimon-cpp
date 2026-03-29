@@ -31,3 +31,8 @@ docker run -d --platform linux/amd64 \
 -v /Users/hunter/CLionProjects/share/paimon-cpp-debug:/share/paimon-cpp-debug \
 -v /Users/hunter/CLionProjects/share/data:/data/hdfs \
 paimon-hdfs:v1
+
+
+# 3. 两种镜像
+1：给源码开发的镜像，不安装 arrow 等
+2：给类似当前项目的，需要安装 arrow，lz4，parquet 等

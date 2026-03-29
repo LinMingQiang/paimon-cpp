@@ -1,30 +1,68 @@
-FROM paimon-cpp-dev-remote:v3
+FROM --platform=linux/amd64 docker.m.daocloud.io/library/ubuntu:24.04
 
 ENV HADOOP_VERSION=3.4.3
 ENV HADOOP_HOME=/opt/hadoop
 ENV PATH=${PATH}:${HADOOP_HOME}/bin:${HADOOP_HOME}/sbin
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-ENV LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$JAVA_HOME/lib/server:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=$HADOOP_HOME/lib/native:$JAVA_HOME/lib/server
+
+# 安装 libhdfs。
+RUN ln -s ${HADOOP_HOME}/include/hdfs.h /usr/local/include/hdfs.h && \
+    ln -s ${HADOOP_HOME}/lib/native/libhdfs.so /usr/local/lib/libhdfs.so && \
+    echo "${JAVA_HOME}/lib/server" > /etc/ld.so.conf.d/openjdk.conf && \
+    ldconfig
 
 USER root
 
-
 # 安装 JDK 和必要工具
 RUN apt-get update && apt-get install -y \
-    ca-certificates \
-    lsb-release \
     wget \
     ssh \
+    rsync \
+    gdb \
     openjdk-8-jdk \
+    libgtest-dev libfmt-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://packages.apache.org/artifactory/arrow/$(lsb_release --id --short | tr 'A-Z' 'a-z')/apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb \
-    && apt-get update \
-    && apt-get install -y -V ./apache-arrow-apt-source-latest-$(lsb_release --codename --short).deb \
-    && apt-get update \
-    && apt-get install -y -V libparquet-dev \
-    && rm apache-arrow-apt-source-latest-*.deb \
+# Install necessary packages
+RUN apt update && \
+    apt install -y \
+    bash-completion \
+    build-essential \
+    ccache \
+    cmake \
+    curl \
+    gcc \
+    g++ \
+    git \
+    htop \
+    libboost-all-dev \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    lsb-release \
+    meson \
+    ninja-build \
+    pkg-config \
+    python3 \
+    python3-pip \
+    vim \
+    wget \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# 安装 openssh-server
+RUN apt-get update && apt-get install -y openssh-server && \
+    # 创建 sshd 运行目录（Ubuntu 必须）
+    mkdir /var/run/sshd && \
+    # 允许 root 登录
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    # 修改加密配置（可选，确保旧版 CLion 能连上）
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    # 设置 root 密码
+    echo "root:123456" | chpasswd && \
+    # 清理缓存
+    rm -rf /var/lib/apt/lists/*
 
 # 下载并解压 Hadoop（使用 Apache CDN）
 RUN wget -q https://dlcdn.apache.org/hadoop/common/hadoop-${HADOOP_VERSION}/hadoop-${HADOOP_VERSION}.tar.gz \
@@ -106,17 +144,24 @@ RUN CLASSPATH_VALUE=$($HADOOP_HOME/bin/hadoop classpath) && \
 EXPOSE 9870 9000 22
 
 CMD ["bash", "-c", "\
-    source /etc/profile && \
-    service ssh start && \
+    # 1. 确保 SSH 服务真正启动（Hadoop 免密登录的前提）
+    mkdir -p /var/run/sshd && /usr/sbin/sshd && \
     sleep 2 && \
+    # 2. 显式加载环境（确保 hdfs 命令在 PATH 中）
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 && \
+    export HADOOP_HOME=/opt/hadoop && \
+    export PATH=$PATH:$HADOOP_HOME/bin:$HADOOP_HOME/sbin && \
+    # 3. 格式化判断
     if [ ! -d '/data/hdfs/namenode/current' ]; then \
         echo '=== First time startup: Formatting NameNode ===' && \
         hdfs namenode -format -force -nonInteractive; \
     else \
         echo '=== NameNode already formatted, skipping format ==='; \
     fi && \
+    # 4. 启动 HDFS (内部会通过 SSH 调用 localhost)
     ${HADOOP_HOME}/sbin/start-dfs.sh && \
     echo '=== HDFS Cluster Started Successfully ===' && \
     jps && \
+    # 5. 保持进程前台运行
     tail -f /dev/null \
 "]

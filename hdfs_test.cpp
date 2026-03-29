@@ -6,8 +6,9 @@
 #include "parquet/arrow/reader.h"
 
 int main() {
-    std::string hdfs_path = "/data/paimon.db/test/bucket-0/data-228d1494-fb9c-4834-bf7b-e5c152bd9542-0.parquet";
+    std::string hdfs_path = "/warehouse/mydb.db/mytable/bucket-0/data-15db4615-ee7a-466b-b8aa-d012dd4c3594-0.parquet";
 
+    std::cout << "HADOOP_HOME: " << (std::getenv("HADOOP_HOME") ? std::getenv("HADOOP_HOME") : "NULL") << std::endl;
     std::cout << "LD_LIBRARY_PATH: " << (std::getenv("LD_LIBRARY_PATH") ? std::getenv("LD_LIBRARY_PATH") : "NULL") << std::endl;
     std::cout << "CLASSPATH: " << (std::getenv("CLASSPATH") ? std::getenv("CLASSPATH") : "NULL") << std::endl;
 

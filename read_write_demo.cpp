@@ -90,7 +90,7 @@ paimon::Status Run(const std::string& root_path, const std::string& db_name,
     PAIMON_ASSIGN_OR_RAISE(std::unique_ptr<paimon::FileStoreWrite> writer,
                            paimon::FileStoreWrite::Create(std::move(write_context)));
 
-    // prepare data
+    // prepare warehouse
     auto struct_array = PrepareData(fields);
     if (!struct_array.ok()) {
         return paimon::Status::Invalid(struct_array.status().ToString());
