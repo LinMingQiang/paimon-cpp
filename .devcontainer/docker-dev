@@ -1,0 +1,114 @@
+docker build --platform linux/amd64 -t paimon-cpp:libhdfs-v4 -f Dockerfile .
+
+# 格式：docker tag [镜像ID或旧名称] [你的用户名]/[仓库名]:[标签]
+docker tag paimon-cpp:libhdfs-v4 cnlingmingqiang/paimon-cpp:libhdfs-v4
+docker push cnlingmingqiang/paimon-cpp:libhdfs-v4
+
+
+docker run -d --platform linux/amd64 \
+  --name paimon-cpp-libhdfs \
+  --hostname hdfs-master \
+  -p 9870:9870 \
+  -p 9866:9866 \
+  -p 9000:9000 \
+  -p 2222:22 \
+  -p 8020:8020 \
+  -v /home/apps/lmq/share:/share \
+  -v /home/apps/lmq/share/data:/data/hdfs \
+  paimon-cpp:libhdfs-v3
+
+
+docker run -d --platform linux/amd64 \
+  --name paimon-cpp-libhdfs-v4 \
+  --hostname hdfs-master \
+  --cap-add=SYS_PTRACE --privileged --security-opt seccomp=unconfined \
+  --ulimit nofile=65535:65535 \
+  -p 9870:9870 \
+  -p 9866:9866 \
+  -p 9000:9000 \
+  -p 2222:22 \
+  -p 8020:8020 \
+  -v /Users/john.wick/CLionProjects/share:/share \
+  -v /Users/john.wick/CLionProjects/share/data:/data/hdfs \
+  paimon-cpp:libhdfs-v4
+
+docker run -d --platform linux/amd64 \
+  --name paimon-cpp-arrow-install \
+  --hostname hdfs-master \
+  --ulimit nofile=65535:65535 \
+  -p 9874:9870 \
+  -p 9864:9866 \
+  -p 9004:9000 \
+  -p 2224:22 \
+  -p 8024:8020 \
+  -v /Users/john.wick/CLionProjects/share:/share \
+  -v /Users/john.wick/CLionProjects/share/data:/data/hdfs \
+  paimon-cpp:libhdfs-v4
+
+
+  docker run -d --platform linux/amd64 \
+  --name paimon-cpp-arrow-install \
+  --hostname hdfs-master \
+  --ulimit nofile=65535:65535 \
+  paimon-cpp:libhdfs-v4
+
+docker exec -it paimon-clean-src-hdfs-ssh-unittest /bin/bash
+
+docker run -d --platform linux/amd64 \
+  --name paimon-clean-src-libhdfs-v4 \
+  --hostname hdfs-master \
+  -p 9870:9870 \
+  -p 9000:9000 \
+  -p 9866:9866 \
+  -p 2222:22 \
+  -p 8020:8020 \
+  -v /Users/hunter/CLionProjects/share:/share \
+  -v /Users/hunter/CLionProjects/share/data:/data/hdfs \
+  docker.1panel.live/cnlingmingqiang/paimon-cpp-clean:libhdfs-v4
+
+
+  docker run -d --platform linux/amd64 \
+  --name paimon-cpp-install-arrow \
+  --hostname hdfs-master \
+  -p 9877:9870 \
+  -p 9033:9000 \
+  -p 9866:9866 \
+  -p 3333:22 \
+  -p 8333:8020 \
+  -v /Users/hunter/CLionProjects/share:/share \
+  -v /Users/hunter/CLionProjects/share/paimon-cpp-debug/hdfs-data:/data/hdfs \
+  docker.1panel.live/cnlingmingqiang/paimon-cpp-clean:libhdfs-v4
+
+  1：想要在宿主机上写数据到 容器的 hdfs，有几个需要注意，fs.defaultFS 要用  0.0.0.0 的方式
+2：mac 上需要配置 你容器的 hostname，也就是启动容器的时候 --hostname hdfs-master ，配置： 127.0.0.1 hdfs-master
+3： 需要映射端口 -p 9866:9866 \
+
+
+
+-- 删除镜像
+docker rmi 751c5a55540c
+docker rmi 594de727af85
+
+-- 删除容器
+docker ps -a | grep paimon
+docker rm -f c515a2e13df6
+
+
+
+
+# 格式：docker tag [镜像ID或旧名称] [你的用户名]/[仓库名]:[标签]
+docker tag paimon-cpp:build-src cnlingmingqiang/paimon-cpp:build-src
+
+docker push cnlingmingqiang/paimon-cpp:build-src
+
+docker push cnlingmingqiang/paimon-cpp:hdfs-ssh-unittest
+
+
+# docker.1panel.live 这是国内的代理，好用
+docker pull --platform linux/amd64 docker.1panel.live/cnlingmingqiang/paimon-cpp:libhdfs-v4
+docker pull --platform linux/amd64 cnlingmingqiang/paimon-cpp:libhdfs-v4
+
+
+cmake .. -DCMAKE_CXX_FLAGS="-Wno-error=unused-variable -Wno-unused-variable" -DPAIMON_BUILD_TESTS=ON
+
+make unittest
