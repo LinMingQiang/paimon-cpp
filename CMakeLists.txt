@@ -14,24 +14,23 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-project(paimon-cpp-examples)
+project(paimon-cpp-dev)
 
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Arrow CONFIG REQUIRED)
 find_package(Paimon CONFIG REQUIRED)
 
-add_executable(read_write_demo src/paimon/paimon_read_write_demo.cpp)
+add_executable(paimon_read_write_demo src/paimon/paimon_read_write_demo.cpp)
 add_executable(clean_demo src/paimon/clean_demo.cpp)
-add_executable(hdfs_test src/paimon/hdfs_arrow_hdfs.cpp)
-add_executable(hdfs_read_write_demo src/paimon/hdfs_arrow_read_write.cpp)
+add_executable(hdfs_arrow_read_write src/paimon/hdfs_arrow_read_write.cpp)
 add_executable(hdfs_libhdfs_demo src/paimon/hdfs_libhdfs_read_write.cpp)
 
 include_directories(${PAIMON_INCLUDE_DIRS})
 
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,--no-as-needed ${CMAKE_EXE_LINKER_FLAGS}")
 
-target_link_libraries(read_write_demo
+target_link_libraries(paimon_read_write_demo
                       PRIVATE arrow_shared
                               paimon_shared
                               paimon_parquet_file_format_shared
@@ -45,15 +44,7 @@ target_link_libraries(clean_demo
                               paimon_orc_file_format_shared
                               paimon_local_file_system_shared)
 
-target_link_libraries(hdfs_test
-        PRIVATE arrow_shared
-        paimon_shared
-        paimon_parquet_file_format_shared
-        paimon_orc_file_format_shared
-        paimon_local_file_system_shared
-        parquet)
-
-target_link_libraries(hdfs_read_write_demo
+target_link_libraries(hdfs_arrow_read_write
         PRIVATE arrow_shared
         paimon_shared
         paimon_parquet_file_format_shared

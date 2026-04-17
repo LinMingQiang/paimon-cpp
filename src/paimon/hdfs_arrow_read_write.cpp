@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
     std::string host = "localhost";
     int port = 9000;
     std::string user = "root";
-    std::string hdfs_file_path = "/tmp/test_data.parquet";
+    std::string hdfs_file_path = "/tmp/test_data2.parquet";
     std::string hdfs_dir_path = "/tmp";
 
     // 解析命令行参数
